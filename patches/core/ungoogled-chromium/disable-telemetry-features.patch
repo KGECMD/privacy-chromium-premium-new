@@ -1,0 +1,14 @@
+# Disable additional telemetry and usage tracking features
+# This extends existing telemetry removal patches
+
+--- a/components/metrics/metrics_service.cc
++++ b/components/metrics/metrics_service.cc
+@@ -100,7 +100,7 @@ MetricsService::MetricsService(const Metho
+     std::make_unique<VariationsIdsProvider>(
+         VariationsIdsProvider::InitMode::kDefault),
+     state_(State::INITIALIZED),
+-    reporting_enabled_(IsMetricsReportingEnabled()) {}
++    reporting_enabled_(false) {}
+
+ MetricsService::~MetricsService() {
+   if (recording_enabled_) {

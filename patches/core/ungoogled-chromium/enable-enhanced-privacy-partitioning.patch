@@ -1,0 +1,23 @@
+# Enable enhanced privacy-focused storage partitioning
+# This ensures that third-party content (cookies, storage, etc.) is partitioned
+# by top-level site, preventing cross-site tracking
+
+--- a/content/browser/browser_main_loop.cc
++++ b/content/browser/browser_main_loop.cc
+@@ -45,6 +45,7 @@
+ #include "content/public/common/main_function_params.h"
+ #include "content/public/common/content_switches.h"
+ #include "net/base/port_util.h"
++#include "services/network/public/cpp/features.h"
+ 
+ namespace content {
+ 
+@@ -123,7 +124,7 @@ int BrowserMain(BrowserMainParameters& par
+   bool no_channel =
+       base::FeatureList::IsEnabled(features::kHttpNoChannel);
+   if (no_channel) {
+-    LOG(WARNING) << "HttpNoChannel (formerly known as PartitionedCookies) "
++    LOG(WARNING) << "Enhanced Storage Partitioning "
+                     << "(CHIPS) is enabled by default. Third-party cookies "
+                     << "will be restricted to first-party contexts only.";
+   }

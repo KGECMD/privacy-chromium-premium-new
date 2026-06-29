@@ -1,0 +1,160 @@
+{
+  "version": "1.0",
+  "name": "Privacy-Chromium Premium Edition - Recommended Extensions",
+  "description": "Privacy-first extensions pre-configured for maximum protection",
+  "extensions": [
+    {
+      "id": "cjpalhdlnbpafiamejdnhcphjbkeiagm",
+      "name": "uBlock Origin",
+      "description": "An efficient wide-spectrum content blocker. Fast, lean, and with 0 memory footprint.",
+      "manifest_version": 2,
+      "category": "privacy",
+      "privacy_respecting": true,
+      "permissions": [
+        "storage",
+        "tabs",
+        "webRequest",
+        "webRequestBlocking",
+        "<all_urls>"
+      ],
+      "install_on_first_run": true,
+      "recommended": true,
+      "settings": {
+        "no_telemetry": true,
+        "local_mode": true,
+        "block_third_party": true
+      }
+    },
+    {
+      "id": "eofcjobaimdcgepkbiicmkiijjjajgoo",
+      "name": "Bitdefender TrafficLight",
+      "description": "Blocks malicious content, detects phishing attempts, and adds security ratings to your search results.",
+      "manifest_version": 3,
+      "category": "security",
+      "privacy_respecting": true,
+      "permissions": [
+        "storage",
+        "tabs",
+        "webRequest",
+        "webNavigation"
+      ],
+      "install_on_first_run": true,
+      "recommended": true,
+      "settings": {
+        "privacy_mode": true,
+        "no_data_sharing": true
+      }
+    },
+    {
+      "id": "afonmagkejenijhagbjgnlhpncjcbjcd",
+      "name": "Malwarebytes Browser Guard",
+      "description": "Browser security extension that blocks malware, scam, and phishing attempts.",
+      "manifest_version": 3,
+      "category": "security",
+      "privacy_respecting": true,
+      "permissions": [
+        "storage",
+        "tabs"
+      ],
+      "install_on_first_run": true,
+      "recommended": true,
+      "settings": {
+        "anonymous_mode": true
+      }
+    },
+    {
+      "id": "pkehgijcmpdhfbdbbnkijodmdjhbjlgp",
+      "name": "Privacy Badger",
+      "description": "Protects your privacy by learning to block invisible trackers.",
+      "manifest_version": 3,
+      "category": "privacy",
+      "privacy_respecting": true,
+      "permissions": [
+        "storage",
+        "tabs",
+        "webRequest",
+        "webRequestBlocking"
+      ],
+      "install_on_first_run": false,
+      "recommended": true,
+      "settings": {
+        "learn_in_private": false
+      }
+    },
+    {
+      "id": "gcbommkclmclpchllfjekcdonpmejbdg",
+      "name": "HTTPS Everywhere",
+      "description": "Encrypt the web! Automatically use HTTPS security on many sites.",
+      "manifest_version": 2024,
+      "category": "privacy",
+      "privacy_respecting": true,
+      "permissions": [
+        "storage",
+        "tabs",
+        "webRequest",
+        "webRequestBlocking"
+      ],
+      "install_on_first_run": false,
+      "recommended": true,
+      "settings": {
+        "encrypt_all_sites": true
+      }
+    },
+    {
+      "id": "cjcddcgbfgjj5jkggohjnlipdnjjgcbk",
+      "name": "ClearURLs",
+      "description": "Remove tracking parameters from URLs automatically.",
+      "manifest_version": 3,
+      "category": "privacy",
+      "privacy_respecting": true,
+      "permissions": [
+        "storage",
+        "tabs",
+        "webRequest"
+      ],
+      "install_on_first_run": false,
+      "recommended": true,
+      "settings": {
+        "block_parameters": [
+          "utm_source",
+          "utm_medium",
+          "utm_campaign",
+          "utm_term",
+          "utm_content",
+          "gclid",
+          "fbclid",
+          "msclkid",
+          "igshid"
+        ]
+      }
+    },
+    {
+      "id": "nmncfjpcmpgeifbgemdfcenjpmfjnkco",
+      "name": "Decentraleyes",
+      "description": "Emulates Content Delivery Networks locally to avoid tracking.",
+      "manifest_version": 2,
+      "category": "privacy",
+      "privacy_respecting": true,
+      "permissions": [
+        "storage",
+        "webRequest",
+        "webRequestBlocking",
+        "nativeMessaging"
+      ],
+      "install_on_first_run": false,
+      "recommended": false,
+      "settings": {
+        "block_external": true
+      }
+    }
+  ],
+  "extension_stores": [
+    {
+      "name": "Chrome Web Store",
+      "url": "https://chrome.google.com/webstore",
+      "enabled": true,
+      "description": "Official Chrome Web Store for extension installation"
+    }
+  ],
+  "privacy_notice": "All extensions in this list are configured to minimize data collection. Extensions are set to NOT remember browsing data, NOT send telemetry, and operate in local-only mode when possible."
+}

@@ -1,0 +1,15 @@
+# Enhanced WebRTC privacy protections
+# Prevents IP address leaks and provides better control over WebRTC behavior
+
+--- a/third_party/webrtc/p2p/base/p2ptransportchannel.cc
++++ b/third_party/webrtc/p2p/base/p2ptransportchannel.cc
+@@ -100,7 +100,8 @@ cricket::IceConfigFromFieldTrials();
+
+// Default WebRTC IP handling policy
+ // Default policy is determined by field trial.
+-constexpr char kDefaultIpHandlingStrategy[] = "prefer_mobile_network_or_wifi";
++// Privacy-Chromium: Default to disable_non_proxied_udp for maximum privacy
++constexpr char kDefaultIpHandlingStrategy[] = "disable_non_proxied_udp";
+
+ // Helper class to manage the async resolver used when STUN or TURN
+ // servers are specified by URL rather than IP address.

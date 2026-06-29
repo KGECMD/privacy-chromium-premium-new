@@ -1,0 +1,16 @@
+# Enable URL tracking parameter removal
+# Removes tracking parameters like utm_*, fbclid, gclid, etc. from URLs
+# This prevents passive tracking when sharing or clicking links
+
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -5000,6 +5000,12 @@ const FeatureEntry kFeatureEntries[] = {
+      default_state = flag_mappings::kRestricted,
+      kNotSupported},
+ #endif
++    {"enable-tracking-parameter-removal",
++     "Privacy-Chromium: Enable Tracking Parameter Removal",
++     "Automatically removes tracking parameters from URLs (utm_*, fbclid, gclid, etc.)",
++     kOsAll,
++     FEATURE_VALUE_TYPE(chrome::browser_policy::kTrackingParameterRemoval)},
+ };

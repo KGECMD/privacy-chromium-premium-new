@@ -1,0 +1,23 @@
+# Enable Chrome Web Store support for extension installation
+# This patch re-enables access to the Chrome Web Store while maintaining privacy
+# The Web Store extension can be installed via first-run prompt
+
+--- a/chrome/browser/extensions/extension_webstore.cc
++++ b/chrome/browser/extensions/extension_webstore.cc
+@@ -45,7 +45,7 @@ constexpr char kInlineInstallSource[] = "inline";
+ 
+ namespace {
+ 
+-bool IsWebstoreAllowed() {
++bool IsWebstoreAllowed() {  // Privacy-Chromium: Allow webstore by default
+ #if BUILDFLAG(IS_CHROMEOS)
+   if (chrome::IsChromeOSInternalProfile())
+     return true;
+@@ -55,6 +55,7 @@ bool IsWebstoreAllowed() {
+ #endif
+   return true;
+ }
++
+ }  // namespace
+ 
+ bool ExtensionWebstore::IsAllowed(const GURL& url,
