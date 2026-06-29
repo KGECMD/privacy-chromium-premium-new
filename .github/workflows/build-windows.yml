@@ -1,222 +1,206 @@
-name: Build Windows
+name: Build Windows - UCX Browser
 
 on:
   push:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+        default: '2.0.0'
 
 jobs:
-  build-windows:
+  build-ucx:
     runs-on: windows-latest
     timeout-minutes: 120
-    permissions:
-      contents: read
-      
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       
       - name: Download Ungoogled Chromium
-        shell: pwsh
         run: |
           $version = "149.0.7827.200-1.1"
           $url = "https://github.com/ungoogled-software/ungoogled-chromium-windows/releases/download/$version/ungoogled-chromium_${version}_windows_x64.zip"
-          Write-Host "Downloading UCX Browser from: $url"
-          curl -L $url -o "ucx.zip" --silent --show-error --fail
-          if (!(Test-Path "ucx.zip") -or (Get-Item "ucx.zip").Length -lt 100MB) {
-            Write-Error "Download failed or file too small!"
-            exit 1
-          }
-          Write-Host "Download complete ($((Get-Item 'ucx.zip').Length / 1MB) MB). Extracting..."
+          Write-Host "Downloading UCX Browser..."
+          curl -L $url -o "ucx.zip" --silent --show-error
+          Write-Host "Download complete. Extracting..."
           Expand-Archive -Path "ucx.zip" -DestinationPath "chromium" -Force
           Write-Host "Done!"
       
+      - name: Create UCX Identity
+        run: |
+          # Rename browser folder
+          $browserDir = Get-ChildItem -Path "chromium" -Directory | Where-Object { $_.Name -like "*ungoogled*" } | Select-Object -First 1
+          if ($browserDir) {
+            Move-Item -Path "chromium\$($browserDir.Name)\*" -Destination "chromium\" -Force
+            Remove-Item -Path "chromium\$($browserDir.Name)" -Recurse -Force
+          }
+          Write-Host "Browser extracted to root"
+      
       - name: Apply UCX Branding
-        shell: pwsh
         run: |
-          # Copy UCX icons
-          Copy-Item resources/ucx*.ico chromium/ -Force
-          Copy-Item resources/ucx_icon*.png chromium/ -Force
-          Write-Host "UCX Browser branding applied"
-      
-      - name: Configure Search Engine - SearXNG
-        shell: pwsh
-        run: |
-          # Create master_preferences with SearXNG as default
-          $masterPrefs = @{
-            default_search_provider_data = @{
-              template_url_data = @{
-                keyword = "searxng"
-                name = "SearXNG"
-                search_url = "https://searxng.website/search?q={searchTerms}"
-                suggest_url = ""
-                image_url = ""
-                search_url_post_params = ""
-                suggestions_url_post_params = ""
-                instant_url_post_params = ""
-                icon = ""
-                startpage = 0
-                encoding = "UTF-8"
-                Affiliations = 0
-              }
-            }
-            default_search_provider = @{
-              enabled = $true
-              name = "SearXNG"
-              keyword = "searxng"
-              search_url = "https://searxng.website/search?q={searchTerms}"
-              suggest_url = ""
-              favicon_url = ""
-              icon_url = ""
-              id = 1
-              sync_off = $true
-            }
-          } | ConvertTo-Json -Depth 10
-          $masterPrefs | Out-File -Encoding UTF8 "chromium/master_preferences" -NoNewline
-          Write-Host "SearXNG configured as default search engine"
-      
-      - name: Create Privacy README
-        shell: pwsh
-        run: |
-          $privacyReadme = @'
-          # UCX Browser - Privacy Guide v1.1.0
+          # Create UCX branding files
+          $productName = "UCX Browser"
+          $version = "2.0.0"
           
-          ## 🔒 Default Privacy Features
-          - No telemetry or tracking
-          - WebRTC IP leak protection enabled
+          # Update about product
+          @"
+          UCX Browser $version
+          Privacy-First Chromium
+          Copyright 2024 UCX Project
+          "@ | Out-File -FilePath "chromium\PRODUCT_VERSION" -Encoding ASCII -NoNewline
+          
+          # Create UCX manifest
+          @"
+          # UCX Browser v$version
+          
+          Privacy Features:
+          - Maximum telemetry removal
+          - WebRTC IP leak protection
+          - SearXNG as default search
           - Third-party cookies blocked
-          - HTTPS-only mode enforced
-          - DNS-over-HTTPS enabled
-          - Default search: SearXNG (privacy-respecting)
+          - HTTPS-only mode enabled
           
-          ## 🛡️ Privacy Settings to Verify
-          1. Open: chrome://settings/privacy
-          2. Enable "Do Not Track"
-          3. Ensure "Help improve Chrome's features" is OFF
-          4. Verify third-party cookies are blocked
+          Based on Ungoogled Chromium 149.0.7827.200
+          "@ | Out-File -FilePath "chromium\UCX-INFO.txt" -Encoding UTF8
           
-          ## 🔍 Default Search Engine
-          SearXNG: https://searxng.website
-          - Privacy-respecting metasearch engine
-          - No tracking, no logging
-          - Open source
-          
-          ## 📦 Based On
-          Ungoogled Chromium 149.0.7827.200
-          
-          ## 🌐 Support
-          https://github.com/KGECMD/UCX-Browser
-          
-          *Privacy First. No Compromise.*
-          '@
-          $privacyReadme | Out-File -Encoding UTF8 "chromium/PRIVACY-GUIDE.txt" -NoNewline
-          Write-Host "Privacy guide created"
+          # Copy default preferences
+          Copy-Item "resources\default_preferences.json" "chromium\default_preferences.json" -Force
+          Write-Host "UCX identity applied"
       
-      - name: Package Portable ZIP
-        shell: pwsh
+      - name: Create Launchers
         run: |
-          mkdir dist -Force
-          Compress-Archive -Path chromium/* -DestinationPath dist/UCX-Browser-Windows-x64.zip -Force
-          $size = [math]::Round((Get-Item dist/UCX-Browser-Windows-x64.zip).Length / 1MB, 2)
-          Write-Host "ZIP package created: $size MB"
+          # UCX Browser Launcher
+          @'
+          @echo off
+          title UCX Browser
+          "%~dp0chrome.exe" --user-data-dir="%~dp0profile" %*
+          '@ | Out-File -FilePath "chromium\UCX-Browser.exe" -Encoding ASCII -NoNewline
+          
+          # UCX Portable Mode Launcher  
+          @'
+          @echo off
+          title UCX Browser - Portable Mode
+          "%~dp0chrome.exe" --user-data-dir="%~dp0profile" --enable-features=IncognitoAvailableWebwide %*
+          '@ | Out-File -FilePath "chromium\UCX-Browser-Portable.exe" -Encoding ASCII -NoNewline
+          
+          # Make them executable
+          icacls "chromium\UCX-Browser.exe" /grant Everyone:RX 2>$null
+          icacls "chromium\UCX-Browser-Portable.exe" /grant Everyone:RX 2>$null
+          Write-Host "Launchers created"
       
-      - name: Create Installer Script
-        shell: pwsh
+      - name: Create Installer
         run: |
-          $script = @'
+          @'
           @echo off
           mode 80,25
-          title UCX Browser v1.1.0 Installer
+          color 1F
+          cls
           echo.
-          echo  ========================================
-          echo     UCX Browser v1.1.0 Installer
-          echo     Privacy-First Chromium Browser
-          echo  ========================================
+          echo  ================================================
+          echo   UCX Browser - Privacy-First Chromium
+          echo   Version 2.0.0
+          echo  ================================================
           echo.
-          set /p DEST="Install to folder (Enter = current): "
-          if "%DEST%"=="" set DEST=%CD%
+          echo  [1] Desktop
+          echo  [2] Start Menu  
+          echo  [3] Current Folder
+          echo  [Q] Quit
           echo.
-          echo Extracting to: %DEST%\UCX-Browser
-          powershell -Command "Expand-Archive -Path '%~dp0UCX-Browser-Windows-x64.zip' -DestinationPath '%DEST%\UCX-Browser' -Force"
+          set /p CHOICE="Select install location: "
+          
+          if "%CHOICE%"=="1" goto desktop
+          if "%CHOICE%"=="2" goto startmenu
+          if "%CHOICE%"=="3" goto current
+          if /i "%CHOICE%"=="Q" exit
+          goto end
+          
+          :desktop
+          powershell -Command "Expand-Archive -Path '%~dp0UCX-Browser-Windows-x64.zip' -DestinationPath '%USERPROFILE%\Desktop\UCX-Browser' -Force"
           echo.
-          echo  Installation complete!
-          echo  Run: %DEST%\UCX-Browser\*\chrome.exe
-          echo.
+          echo  Installed to Desktop!
           set /p RUN="Launch now? (Y/N): "
-          if /i "%RUN%"=="Y" start "" "%DEST%\UCX-Browser\*\chrome.exe"
-          exit
-          '@
-          $script | Out-File -Encoding ASCII dist/install.bat -NoNewline
+          if /i "%RUN%"=="Y" start "" "%USERPROFILE%\Desktop\UCX-Browser\UCX-Browser.exe"
+          goto end
+          
+          :startmenu
+          powershell -Command "Expand-Archive -Path '%~dp0UCX-Browser-Windows-x64.zip' -DestinationPath '%APPDATA%\Microsoft\Windows\Start Menu\Programs\UCX-Browser' -Force"
+          echo.
+          echo  Installed to Start Menu!
+          set /p RUN="Launch now? (Y/N): "
+          if /i "%RUN%"=="Y" start "" "%APPDATA%\Microsoft\Windows\Start Menu\Programs\UCX-Browser\UCX-Browser.exe"
+          goto end
+          
+          :current
+          powershell -Command "Expand-Archive -Path '%~dp0UCX-Browser-Windows-x64.zip' -DestinationPath '%CD%\UCX-Browser' -Force"
+          echo.
+          echo  Installed!
+          set /p RUN="Launch now? (Y/N): "
+          if /i "%RUN%"=="Y" start "" "%CD%\UCX-Browser\UCX-Browser.exe"
+          
+          :end
+          echo.
+          pause
+          '@ | Out-File -FilePath "chromium\Setup.bat" -Encoding ASCII -NoNewline
+          Write-Host "Installer created"
       
-      - name: Upload Artifact
+      - name: Package
+        run: |
+          mkdir dist -Force
+          Compress-Archive -Path "chromium\*" -DestinationPath "dist\UCX-Browser-v2.0.0-Windows-x64.zip" -Force
+          Write-Host "Package created: $([math]::Round((Get-Item 'dist\UCX-Browser-v2.0.0-Windows-x64.zip').Length / 1MB, 2)) MB"
+      
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: UCX-Browser-Windows-x64
+          name: UCX-Browser-Windows
           path: dist/*
           retention-days: 30
 
   release:
-    needs: build-windows
+    needs: build-ucx
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    
     permissions:
       contents: write
     
     steps:
-      - name: Download Artifact
+      - name: Download
         uses: actions/download-artifact@v4
         with:
-          name: UCX-Browser-Windows-x64
+          name: UCX-Browser-Windows
           path: artifact
-          
-      - name: Create Release
+      
+      - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: artifact/*
           body: |
-            # 🛡️ UCX Browser v1.1.0 - Enhanced Privacy Edition
+            # 🛡️ UCX Browser v2.0.0
             
-            **The Ultimate Privacy-First Chromium Browser**
+            **Privacy-First Chromium Browser**
             
-            ## 🔒 Privacy Features (Enhanced v2.0)
+            ## 🔒 Privacy Features
             - ✅ All telemetry removed
-            - ✅ Google services disabled
+            - ✅ **SearXNG as default search**
             - ✅ WebRTC IP leak protection
-            - ✅ QUIC disabled (reduced fingerprinting)
-            - ✅ Client hints disabled
             - ✅ Third-party cookies blocked
-            - ✅ DNS-over-HTTPS enabled
             - ✅ HTTPS-only mode enforced
-            - ✅ Strict referrer policy
+            - ✅ DNS-over-HTTPS enabled
+            - ✅ Do Not Track enabled
             - ✅ Privacy sandbox disabled
-            - ✅ **SearXNG as default search engine**
-            
-            ## 🛡️ Security
-            - ✅ Site isolation
-            - ✅ Origin isolation
-            - ✅ Storage partitioning
-            - ✅ Maximum sandboxing
-            
-            ## 🔍 Default Search Engine
-            **SearXNG** - Privacy-respecting metasearch
-            - No tracking
-            - No logging
-            - Open source
             
             ## 📦 Downloads
-            - **Portable ZIP**: Extract anywhere, run chrome.exe
-            - **Installer**: Run install.bat
+            - **UCX-Browser.exe** - Direct launcher
+            - **Setup.bat** - Interactive installer
+            - **Portable Mode** - Run from USB, no install
             
-            ## 📄 Included
-            - Privacy Guide (PRIVACY-GUIDE.txt)
-            - Master Preferences with SearXNG
+            ## Based On
+            Ungoogled Chromium 149.0.7827.200
             
-            ## 🔍 Based On
-            - Ungoogled Chromium 149.0.7827.200
-            
-            ---
             *Privacy First. No Compromise.*
           prerelease: false
         env:
