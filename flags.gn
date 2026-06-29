@@ -1,25 +1,23 @@
 # ==============================================================================
-# PRIVACY-PRIVACY-CHROMIUM PREMIUM EDITION - BUILD FLAGS
+# UCX BROWSER - PRIVACY-FIRST CHROMIUM - BUILD FLAGS
 # ==============================================================================
-# This configuration provides maximum privacy and security hardening
-# while maintaining excellent website compatibility.
-#
-# Philosophy: Privacy and security are paramount. No telemetry. No tracking.
-# No Google dependency. Hardened by default.
+# Maximum privacy and security hardening while maintaining compatibility.
+# Philosophy: Privacy > Convenience. No telemetry. No tracking.
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# PERFORMANCE & BUILD OPTIONS
+# PERFORMANCE & BUILD
 # ------------------------------------------------------------------------------
 chrome_pgo_phase=0
 clang_use_chrome_plugins=false
 disable_fieldtrial_testing_config=true
 exclude_unwind_tables=true
 treat_warnings_as_errors=false
-use_unofficial_version_number=false
+is_official_build=true
+symbol_level=0
 
 # ------------------------------------------------------------------------------
-# GOOGLE SERVICES - COMPLETELY DISABLED
+# GOOGLE SERVICES - ALL DISABLED
 # ------------------------------------------------------------------------------
 enable_hangout_services_extension=false
 enable_mdns=false
@@ -31,101 +29,60 @@ google_api_key=""
 google_default_client_id=""
 google_default_client_secret=""
 use_official_google_api_keys=false
+enable_chrome_features=false
 
 # ------------------------------------------------------------------------------
-# SECURITY HARDENING - MAXIMUM PROTECTION
+# SECURITY HARDENING - MAXIMUM
 # ------------------------------------------------------------------------------
-
-# Enable all security hardening features
-is_cfi=false
 is_debug=false
-
-# Control Flow Integrity - helps prevent exploitation of memory corruption
-# Note: Disabled by default as it can cause compatibility issues with some sites
-# Enable manually if needed: is_cfi=true
-
-# Site Isolation - enables strict site isolation for better security
 enable_isolation=true
 enable_originisolation=true
-
-# Partitioning - improves privacy by isolating storage by top-level site
-enable_shared_storage_api=false
 enable_third_party_storage_partitioning=true
-
-# PDF.js hardening
+enable_shared_storage_api=false
 pdf_enable_v8_permissions=false
-pdf_use_skia_renderer=false
-
-# WebUI hardening
-webui_enabled_resource_file_whitelist=""
-
-# Additional security flags
 v8_drumbrake_bounds_checks=true
-
-# Memory safety improvements
 enable_nacl=false
-
-# Disable potentially dangerous features
 enable_nacl_nonsfi=false
 enable_iterator_rewinding_builtins=false
 
-# ------------------------------------------------------------------------------
-# PRIVACY ENHANCEMENTS
-# ------------------------------------------------------------------------------
+# Sandbox - maximum isolation
+sandbox_distinct_thread_pool=true
+sandbox_simple_serial=true
 
-# Disable all telemetry and usage statistics
+# ------------------------------------------------------------------------------
+# PRIVACY - ALL ENABLED/DISABLED APPROPRIATELY
+# ------------------------------------------------------------------------------
 enable_metrics=false
 enable_reporting=false
 enable_network_time_service_querying=false
-
-# Privacy sandbox - completely disabled
 enable_privacy_sandbox_ads=false
-
-# Client Hints - disabled by default for privacy
 enable_client_hints=false
-
-# Background sync and service workers - limited for privacy
 enable_background_thread_pool=true
-
-# DNS-over-HTTPS - privacy-preserving DNS
-# Note: User can configure their preferred DoH provider in settings
 enable_dns_over_https=true
+enable_quic=false
 
-# WebRTC - enhanced privacy protection
-webrtc_ip_handling_policy="default_behavior"
+# WebRTC - disable ICE candidates leak
+webrtc_ip_handling_policy="default_public_interface_only"
 
 # ------------------------------------------------------------------------------
-# CONTENT SETTINGS & BLOCKING
+# CONTENT BLOCKING - STRICT DEFAULTS
 # ------------------------------------------------------------------------------
-
-# Default to blocking third-party cookies
 block_third_party_cookies=true
-
-# Enhanced referrer policy
 default_secure_referrer_policy="strict-origin-when-cross-origin"
-
-# HTTPS-only mode
 https_only_mode_default=1
-
-# Tracking protection level
-tracking_protection_level=1
+tracking_protection_level=2
 
 # ------------------------------------------------------------------------------
-# COMPATIBILITY FLAGS (Enabled for site compatibility)
+# COMPATIBILITY (Streaming services)
 # ------------------------------------------------------------------------------
-
-# Widevine DRM - kept for compatibility with streaming services
-# Users who want maximum privacy can disable this manually
 enable_widevine=true
 
 # ------------------------------------------------------------------------------
-# DEVELOPER & DEBUG OPTIONS
+# DEBUG/DEV
 # ------------------------------------------------------------------------------
-
-# Keep for development purposes
 remove_webcore_debug_symbols=true
 enable_profiling=false
 
 # ============================================================================
-# END OF PRIVACY-PRIVACY-CHROMIUM PREMIUM EDITION FLAGS
+# END OF UCX BROWSER FLAGS
 # ============================================================================

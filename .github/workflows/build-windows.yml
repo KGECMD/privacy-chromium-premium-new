@@ -17,13 +17,17 @@ jobs:
       - name: Download Ungoogled Chromium
         shell: pwsh
         run: |
-          $version = "149.0.7827.200"
-          $url = "https://sourceforge.net/projects/ungoogled-chromium-win.mirror/files/$version/ungoogled-chromium-$version.windows-x64.zip/download"
-          Write-Host "Downloading UC..."
-          Invoke-WebRequest -Uri $url -OutFile "ucx.zip" -UserAgent "Mozilla/5.0"
+          $version = "149.0.7827.200-1"
+          $url = "https://github.com/nicehorse06/ungoogled-chromium-windows-installers/releases/download/$version/ungoogled-chromium-$version.windows-x64.zip"
+          Write-Host "Downloading UCX Browser from: $url"
+          curl -L $url -o "ucx.zip" --silent --show-error
+          if (!(Test-Path "ucx.zip")) {
+            Write-Error "Download failed!"
+            exit 1
+          }
+          Write-Host "Download complete. Extracting..."
           Expand-Archive -Path "ucx.zip" -DestinationPath "chromium" -Force
-          Write-Host "Extracted!"
-          ls -Recurse chromium | Select-Object FullName
+          Write-Host "Done!"
       
       - name: Apply UCX Branding
         shell: pwsh
