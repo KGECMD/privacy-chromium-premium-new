@@ -1,8 +1,7 @@
-UCX Browser v1.0.0
+UCX Browser v1.0.4
 Build by KGECMD (Kayan Erkama)
 UCX Project (Universally Created Xternal Privacy Project)
 
-Version: 1.0.0
+Version: 1.0.4
 Date: 2024
-
-Chromium Base: Latest Stable
+Based on: Ungoogled Chromium 146.0.7680.153
